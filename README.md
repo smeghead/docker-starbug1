@@ -14,6 +14,8 @@ docker build -t starbug1 .
 docker run --name starbug1 -p 8000:80 -d starbug1
 ```
 
+URL: http://localhost:8000/
+
 ## stop ##
 
 ```
