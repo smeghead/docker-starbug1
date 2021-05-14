@@ -16,11 +16,20 @@ RUN cd /tmp && \
   tar zxf cgic205.tar.gz && \
   cd cgic205 && \
   make && \
-  make install
-
-RUN  cd /tmp && wget --trust-server-names https://ja.osdn.net/dl/starbug1/starbug1-1.6.01.tar.gz && \
+  make install && \
+  cd .. && \
+  wget --trust-server-names https://github.com/sqlite/sqlite/archive/refs/tags/version-3.7.9.tar.gz -O sqlite-3.7.9.tar.gz && \
+  tar zxf sqlite-3.7.9.tar.gz && \
+  mkdir bld && \
+  cd bld && \
+  ../sqlite-version-3.7.9/configure --disable-tcl && \
+  make && \
+  make install && \
+  cd .. && wget --trust-server-names https://ja.osdn.net/dl/starbug1/starbug1-1.6.01.tar.gz && \
   tar zxf starbug1-1.6.01.tar.gz && \
   cd starbug1-1.6.01 && \
+  # bugfix. sql statement
+  sed -i -e 's/m\.m\./m\./' db_project.c && \
   make INITIAL_LOCALE=ja_JP webapp
 
 RUN cp -r /tmp/starbug1-1.6.01/dist/starbug1/* /var/www/html
