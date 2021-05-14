@@ -11,8 +11,10 @@ docker build -t starbug1 .
 ## run ##
 
 ```
-docker run --rm --name starbug1 -p 8000:80 -d starbug1
+docker run --rm --name starbug1 -v $(pwd)/db:/var/www/html/db  -p 8000:80 -d starbug1
 ```
+
+db is a directory contains databases.
 
 URL: http://localhost:8000/
 

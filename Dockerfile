@@ -1,3 +1,24 @@
+FROM ubuntu:16.04 as builder
+
+RUN apt-get update && apt-get upgrade -y && \
+  apt-get install -y language-pack-ja wget build-essential tcl-dev \
+  gettext libjson-perl libsqlite3-dev liblocale-po-perl rsync
+
+RUN cd /tmp && \
+  wget --trust-server-names http://repository.timesys.com/buildsources/l/libcgic/libcgic-205/cgic205.tar.gz && \
+  tar zxf cgic205.tar.gz && \
+  cd cgic205 && \
+  make && \
+  make install && \
+  cd .. && \
+  wget --trust-server-names https://ja.osdn.net/dl/starbug1/starbug1-1.6.01.tar.gz && \
+  tar zxf starbug1-1.6.01.tar.gz && \
+  cd starbug1-1.6.01 && \
+  # bugfix. sql statement
+  sed -i -e 's/m\.m\./m\./' db_project.c && \
+  make INITIAL_LOCALE=ja_JP webapp
+
+
 FROM ubuntu:16.04
 
 ENV APACHE_RUN_USER www-data
@@ -8,31 +29,11 @@ ENV APACHE_LOG_DIR /var/log/apache2
 ENV APACHE_LOCK_DIR /var/lock/apache2
 
 RUN apt-get update && apt-get upgrade -y && \
-  apt-get install -y language-pack-ja apache2 wget build-essential tcl-dev \
-  gettext libjson-perl libsqlite3-dev liblocale-po-perl rsync
+  apt-get install -y language-pack-ja apache2 \
+  gettext libjson-perl liblocale-po-perl && \
+  apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN cd /tmp && \
-  wget --trust-server-names http://repository.timesys.com/buildsources/l/libcgic/libcgic-205/cgic205.tar.gz && \
-  tar zxf cgic205.tar.gz && \
-  cd cgic205 && \
-  make && \
-  make install && \
-  cd .. && \
-  wget --trust-server-names https://github.com/sqlite/sqlite/archive/refs/tags/version-3.7.9.tar.gz -O sqlite-3.7.9.tar.gz && \
-  tar zxf sqlite-3.7.9.tar.gz && \
-  mkdir bld && \
-  cd bld && \
-  ../sqlite-version-3.7.9/configure --disable-tcl && \
-  make && \
-  make install && \
-  cd .. && wget --trust-server-names https://ja.osdn.net/dl/starbug1/starbug1-1.6.01.tar.gz && \
-  tar zxf starbug1-1.6.01.tar.gz && \
-  cd starbug1-1.6.01 && \
-  # bugfix. sql statement
-  sed -i -e 's/m\.m\./m\./' db_project.c && \
-  make INITIAL_LOCALE=ja_JP webapp
-
-RUN cp -r /tmp/starbug1-1.6.01/dist/starbug1/* /var/www/html
+COPY --from=builder /tmp/starbug1-1.6.01/dist/starbug1/ /var/www/html/
 RUN chown -R www-data:www-data /var/www/html
 
 RUN sed -i -e 's/Options Indexes FollowSymLinks/Options Indexes FollowSymLinks ExecCGI\n\tDirectoryIndex index.cgi/g' /etc/apache2/apache2.conf
