@@ -19,7 +19,7 @@ RUN cd /tmp && \
   make INITIAL_LOCALE=ja_JP webapp
 
 
-FROM ubuntu:16.04
+FROM debian:sid-slim
 
 ENV APACHE_RUN_USER www-data
 ENV APACHE_RUN_GROUP www-data
@@ -29,10 +29,19 @@ ENV APACHE_LOG_DIR /var/log/apache2
 ENV APACHE_LOCK_DIR /var/lock/apache2
 
 RUN apt-get update && apt-get upgrade -y && \
-  apt-get install -y language-pack-ja apache2 \
+  apt-get install -y locales apache2 \
   gettext libjson-perl liblocale-po-perl && \
   apt-get clean && rm -rf /var/lib/apt/lists/*
 
+RUN sed -i -E 's/# (ja_JP.UTF-8)/\1/' /etc/locale.gen && \
+  locale-gen &&\
+  update-locale LANG=ja_JP.UTF-8
+
+#RUN apt-get update && apt-get upgrade -y && \
+#  apt-get install -y language-pack-ja apache2 \
+#  gettext libjson-perl liblocale-po-perl && \
+#  apt-get clean && rm -rf /var/lib/apt/lists/*
+#
 COPY --from=builder /tmp/starbug1-1.6.01/dist/starbug1/ /var/www/html/
 RUN chown -R www-data:www-data /var/www/html
 
