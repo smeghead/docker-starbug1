@@ -1,4 +1,5 @@
 FROM ubuntu:16.04 as builder
+LABEL  maintainer "smeghead <smeghead7@gmail.com>"
 
 RUN apt-get update && apt-get upgrade -y && \
   apt-get install -y language-pack-ja wget build-essential tcl-dev \
@@ -37,11 +38,6 @@ RUN sed -i -E 's/# (ja_JP.UTF-8)/\1/' /etc/locale.gen && \
   locale-gen &&\
   update-locale LANG=ja_JP.UTF-8
 
-#RUN apt-get update && apt-get upgrade -y && \
-#  apt-get install -y language-pack-ja apache2 \
-#  gettext libjson-perl liblocale-po-perl && \
-#  apt-get clean && rm -rf /var/lib/apt/lists/*
-#
 COPY --from=builder /tmp/starbug1-1.6.01/dist/starbug1/ /var/www/html/
 RUN chown -R www-data:www-data /var/www/html
 
