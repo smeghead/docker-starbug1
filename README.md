@@ -1,6 +1,10 @@
 # docker-starbug1
 
-starbug1(BTS) docker image.
+starbug1(Bug Tracking System) docker image.
+
+[Starbug1](http://www.starbug1.com/)
+
+Starbug1 is BTS(Bug Tracking System wikipedia:Bug tracking system). Starbug1 is faster than recently BTS. You can use as ITS(Issue Tracking System). Starbug1 runs Web server on Windows, Linux OS, FreeBSD, MacOSX as CGI. If you want to use on Windows, you can download windows binary version.
 
 ## pull ##
 
